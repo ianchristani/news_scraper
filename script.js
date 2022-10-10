@@ -1,7 +1,7 @@
 console.log('working...');
 
+// importing the libs
 const { channel } = require('diagnostics_channel');
-// importing the lib
 const pup = require('puppeteer');
 
 // function to get the info
@@ -11,26 +11,26 @@ const pup = require('puppeteer');
     // creating the page instance
     let page = await browser.newPage();
 
-
     // opening the pages
-    const pages = [
+    const sources = [
         'https://feeds.feedburner.com/euronews/en/home/',
         'https://tradingeconomics.com/poland/rss',
-        'https://tradingeconomics.com/brazil/rss',
         'https://tradingeconomics.com/euro-area/rss',
         'https://tradingeconomics.com/european-union/rss',
     ];
     
-    pages.forEach(page ()=>{
-        
-    });
-    await page.goto('https://feeds.feedburner.com/euronews/en/home/');
-    // getting the specific tag content in a list
-    let data = await page.$$eval('title', title => {
-        return title.map(title => title.textContent);
+    sources.forEach(sourc=>{
+        page.goto(sourc);
+        page.waitForSelector('title');
+
+        // getting the specific tag content in a list
+        let data = page.$$eval('title', title => {
+            return title.map(title => title.textContent);
     });
    
     console.log(data);
 
-    await browser.close();
+    browser.close();
+    });
+    
 })();
