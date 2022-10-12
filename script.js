@@ -1,36 +1,30 @@
 console.log('working...');
 
 // importing the libs
-const { channel } = require('diagnostics_channel');
-const pup = require('puppeteer');
+const { Cluster } = require('puppeteer-cluster');
 
-// function to get the info
-(async ()=>{
-    // creating the browser instance
-    let browser = await pup.launch();
-    // creating the page instance
-    let page = await browser.newPage();
+(async () => {
+  const cluster = await Cluster.launch({
+    concurrency: Cluster.CONCURRENCY_CONTEXT,
+    maxConcurrency: 2,
+  });
 
-    // opening the pages
-    const sources = [
-        'https://feeds.feedburner.com/euronews/en/home/',
-        'https://tradingeconomics.com/poland/rss',
-        'https://tradingeconomics.com/euro-area/rss',
-        'https://tradingeconomics.com/european-union/rss',
-    ];
-    
-    sources.forEach(sourc=>{
-        page.goto(sourc);
-        page.waitForSelector('title');
+  await cluster.task(async ({ page, data: url }) => {
+    await page.goto(url);
 
-        // getting the specific tag content in a list
-        let data = page.$$eval('title', title => {
-            return title.map(title => title.textContent);
+    page.waitForSelector('title');
+    let data = page.$$eval('title', title => {
+        return title.map(title => title.textContent);
     });
-   
     console.log(data);
+  });  
 
-    browser.close();
-    });
-    
+  cluster.queue('https://feeds.feedburner.com/euronews/en/home/');
+  cluster.queue('https://tradingeconomics.com/poland/rss');
+  cluster.queue('https://tradingeconomics.com/euro-area/rss');
+  cluster.queue('https://tradingeconomics.com/european-union/rss');
+
+
+  await cluster.idle();
+  await cluster.close();
 })();
