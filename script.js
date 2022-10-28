@@ -1,30 +1,33 @@
-console.log('working...');
+const { channel } = require('diagnostics_channel');
+// importing the lib
+const pup = require('puppeteer');
 
-// importing the libs
-const { Cluster } = require('puppeteer-cluster');
+// function to get the info
+async function scraper(param){
+    // creating the browser instance
+    let browser = await pup.launch();
+    // creating the page instance
+    let page = await browser.newPage();
 
-(async () => {
-  const cluster = await Cluster.launch({
-    concurrency: Cluster.CONCURRENCY_CONTEXT,
-    maxConcurrency: 2,
-  });
-
-  await cluster.task(async ({ page, data: url }) => {
-    await page.goto(url);
-
-    page.waitForSelector('title');
-    let data = page.$$eval('title', title => {
+    // opening the page
+    await page.goto(param);
+    // getting the specific tag content in a list
+    let data = await page.$$eval('title', title => {
         return title.map(title => title.textContent);
     });
+   
     console.log(data);
-  });  
 
-  cluster.queue('https://feeds.feedburner.com/euronews/en/home/');
-  cluster.queue('https://tradingeconomics.com/poland/rss');
-  cluster.queue('https://tradingeconomics.com/euro-area/rss');
-  cluster.queue('https://tradingeconomics.com/european-union/rss');
+    await browser.close();
+};
 
+const sources = [
+  'https://feeds.feedburner.com/euronews/en/home/',
+  'https://rss.nytimes.com/services/xml/rss/nyt/Americas.xml',
+  'https://rss.nytimes.com/services/xml/rss/nyt/Europe.xml',
+  'https://rss.nytimes.com/services/xml/rss/nyt/MiddleEast.xml'
+];
 
-  await cluster.idle();
-  await cluster.close();
-})();
+sources.forEach(source =>{
+  scraper(source).then(value => console.log(value));
+});
