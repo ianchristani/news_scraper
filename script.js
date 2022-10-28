@@ -16,18 +16,20 @@ async function scraper(param){
         return title.map(title => title.textContent);
     });
    
-    console.log(data);
-
+    news.push(data);    
     await browser.close();
+    data = data.slice(1,data.length-1);
+    console.log(data);
 };
 
 const sources = [
   'https://feeds.feedburner.com/euronews/en/home/',
   'https://rss.nytimes.com/services/xml/rss/nyt/Americas.xml',
-  'https://rss.nytimes.com/services/xml/rss/nyt/Europe.xml',
-  'https://rss.nytimes.com/services/xml/rss/nyt/MiddleEast.xml'
+  'https://finance.yahoo.com/news/rssindex',
 ];
 
+let news = [];
+
 sources.forEach(source =>{
-  scraper(source).then(value => console.log(value));
+  scraper(source);
 });
