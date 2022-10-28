@@ -1,3 +1,4 @@
+
 const { channel } = require('diagnostics_channel');
 // importing the lib
 const pup = require('puppeteer');
@@ -24,10 +25,9 @@ async function scraper(param){
 const sources = [
   'https://feeds.feedburner.com/euronews/en/home/',
   'https://rss.nytimes.com/services/xml/rss/nyt/Americas.xml',
+  'https://rss.nytimes.com/services/xml/rss/nyt/Europe.xml',
   'https://rss.nytimes.com/services/xml/rss/nyt/MiddleEast.xml'
 ];
-
-
 
 sources.forEach(source =>{
   scraper(source).then(value => console.log(value));
